@@ -496,6 +496,10 @@ public abstract class DrawerActivity extends ToolbarActivity
                 menuItem.setChecked(false);
                 UserInfoActivity.openAccountRemovalConfirmationDialog(getAccount(), getSupportFragmentManager(), true);
                 break;
+            case R.id.nav_recently_added:
+                handleSearchEvents(new SearchEvent("%", SearchRemoteOperation.SearchType.CONTENT_TYPE_SEARCH,
+                                                   SearchEvent.UnsetType.UNSET_BOTTOM_NAV_BAR), menuItem.getItemId());
+                break;
             case R.id.nav_recently_modified:
                 handleSearchEvents(new SearchEvent("", SearchRemoteOperation.SearchType.RECENTLY_MODIFIED_SEARCH,
                         SearchEvent.UnsetType.UNSET_BOTTOM_NAV_BAR), menuItem.getItemId());
