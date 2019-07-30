@@ -832,7 +832,16 @@ public class OCFileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             case PHOTO_SEARCH:
                 type = VirtualFolderType.PHOTOS;
                 onlyImages = true;
-                lastTimestamp = ((RemoteFile) objects.get(objects.size() - 1)).getModifiedTimestamp() / 1000;
+
+                int lastPosition = objects.size() - 1;
+
+                if (lastPosition < 0) {
+                    lastTimestamp = -1;
+                    break;
+                }
+
+                RemoteFile lastFile = (RemoteFile) objects.get(lastPosition);
+                lastTimestamp = lastFile.getModifiedTimestamp() / 1000;
                 break;
             default:
                 type = VirtualFolderType.NONE;

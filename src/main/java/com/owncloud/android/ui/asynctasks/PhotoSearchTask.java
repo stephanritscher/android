@@ -35,7 +35,7 @@ import com.owncloud.android.ui.fragment.PhotoFragment;
 
 import java.lang.ref.WeakReference;
 
-public class PhotoSearchTask extends AsyncTask<Void, Void, Boolean> {
+public class PhotoSearchTask extends AsyncTask<Void, Void, RemoteOperationResult> {
 
     private int columnCount;
     private Account account;
@@ -67,7 +67,7 @@ public class PhotoSearchTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... voids) {
+    protected RemoteOperationResult doInBackground(Void... voids) {
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -75,12 +75,14 @@ public class PhotoSearchTask extends AsyncTask<Void, Void, Boolean> {
         }
 
         if (photoFragmentWeakReference.get() == null) {
-            return false;
+            return new RemoteOperationResult(new Exception("Photo fragment is null"));
         }
         PhotoFragment photoFragment = photoFragmentWeakReference.get();
         OCFileListAdapter adapter = photoFragment.getAdapter();
 
-        if (!isCancelled()) {
+        if (isCancelled()) {
+            return new RemoteOperationResult(new Exception("Cancelled"));
+        } else {
             int limit = 15 * columnCount;
 
             long timestamp = -1;
@@ -91,42 +93,38 @@ public class PhotoSearchTask extends AsyncTask<Void, Void, Boolean> {
             searchRemoteOperation.setLimit(limit);
             searchRemoteOperation.setTimestamp(timestamp);
 
-            RemoteOperationResult remoteOperationResult = searchRemoteOperation.execute(account,
-                                                                                        photoFragment.requireContext());
-
-            if (remoteOperationResult.isSuccess() && remoteOperationResult.getData() != null
-                && !isCancelled()) {
-                if (remoteOperationResult.getData() == null || remoteOperationResult.getData().size() == 0) {
-                    photoFragment.setPhotoSearchNoNew(true);
-                } else {
-                    adapter.setData(remoteOperationResult.getData(),
-                                    ExtendedListFragment.SearchType.PHOTO_SEARCH,
-                                    storageManager,
-                                    null,
-                                    false);
-                    Log_OC.d(this, "Search: count: " + remoteOperationResult.getData().size() + " total: " + adapter.getFiles().size());
-                }
-            }
-
-            return remoteOperationResult.isSuccess();
-        } else {
-            return false;
+            return searchRemoteOperation.execute(account, photoFragment.requireContext());
         }
     }
 
     @Override
-    protected void onPostExecute(Boolean result) {
+    protected void onPostExecute(RemoteOperationResult result) {
         if (photoFragmentWeakReference.get() != null) {
             PhotoFragment photoFragment = photoFragmentWeakReference.get();
 
-            final ToolbarActivity fileDisplayActivity = (ToolbarActivity) photoFragment.getActivity();
-            if (fileDisplayActivity != null) {
-                fileDisplayActivity.runOnUiThread(() -> fileDisplayActivity.setIndeterminate(false));
+            if (result.isSuccess() && result.getData() != null && !isCancelled()) {
+                if (result.getData() == null || result.getData().size() == 0) {
+                    photoFragment.setPhotoSearchNoNew(true);
+                } else {
+                    OCFileListAdapter adapter = photoFragment.getAdapter();
+
+                    adapter.setData(result.getData(),
+                                    ExtendedListFragment.SearchType.PHOTO_SEARCH,
+                                    storageManager,
+                                    null,
+                                    false);
+                    adapter.notifyDataSetChanged();
+                    Log_OC.d(this, "Search: count: " + result.getData().size() + " total: " + adapter.getFiles().size());
+                }
             }
 
-            if (result && !isCancelled()) {
-                photoFragment.getAdapter().notifyDataSetChanged();
-            } else {
+            final ToolbarActivity fileDisplayActivity = (ToolbarActivity) photoFragment.getActivity();
+
+            if (fileDisplayActivity != null) {
+                fileDisplayActivity.setIndeterminate(false);
+            }
+
+            if (!result.isSuccess() && !isCancelled()) {
                 photoFragment.setEmptyListMessage(ExtendedListFragment.SearchType.PHOTO_SEARCH);
             }
 

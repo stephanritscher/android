@@ -26,7 +26,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.owncloud.android.datamodel.OCFile;
 import com.owncloud.android.datamodel.VirtualFolderType;
 import com.owncloud.android.lib.common.utils.Log_OC;
 import com.owncloud.android.lib.resources.files.SearchRemoteOperation;
@@ -60,6 +59,7 @@ public class PhotoFragment extends OCFileListFragment {
     /**
      * {@inheritDoc}
      */
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
 
@@ -91,11 +91,6 @@ public class PhotoFragment extends OCFileListFragment {
     }
 
     @Override
-    public void onItemClicked(OCFile file) {
-        super.onItemClicked(file);
-    }
-
-    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
@@ -106,14 +101,14 @@ public class PhotoFragment extends OCFileListFragment {
         menuItemAddRemoveValue = MenuItemAddRemove.REMOVE_GRID_AND_SORT;
         requireActivity().invalidateOptionsMenu();
 
-        onMessageEvent(searchEvent, false);
+        handleSearchEvent(searchEvent, false);
     }
 
     @Override
     public void onRefresh() {
         super.onRefresh();
 
-        onMessageEvent(searchEvent, true);
+        handleSearchEvent(searchEvent, true);
     }
 
     @Override
@@ -121,7 +116,7 @@ public class PhotoFragment extends OCFileListFragment {
         super.onMessageEvent(changeMenuEvent);
     }
 
-    public void onMessageEvent(final SearchEvent event, boolean refresh) {
+    private void handleSearchEvent(final SearchEvent event, boolean refresh) {
         prepareCurrentSearch(event);
         searchFragment = true;
         setEmptyListLoadingMessage();
@@ -174,6 +169,11 @@ public class PhotoFragment extends OCFileListFragment {
         photoSearchQueryRunning = bool;
     }
 
+    /**
+     * Used to indicate that a paginated search was done, but did not result in new results
+     *
+     * @param bool true if search ran, but no new photos were retrieved; then no new search will be started
+     */
     public void setPhotoSearchNoNew(boolean bool) {
         photoSearchNoNew = bool;
     }
