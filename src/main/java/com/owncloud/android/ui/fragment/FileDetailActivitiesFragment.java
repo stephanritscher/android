@@ -312,7 +312,7 @@ public class FileDetailActivitiesFragment extends Fragment implements
                         file.getLocalId());
 
                 if (pageUrl != null) {
-                    getRemoteNotificationOperation.setNextUrl(pageUrl);
+                    //   getRemoteNotificationOperation.setNextUrl(pageUrl);
                 }
 
                 Log_OC.d(TAG, "BEFORE getRemoteActivitiesOperation.execute");

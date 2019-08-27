@@ -96,7 +96,7 @@ public class ActivitiesServiceApiImpl implements ActivitiesServiceApi {
 
                 GetActivitiesRemoteOperation getRemoteNotificationOperation = new GetActivitiesRemoteOperation();
                 if (pageUrl != null) {
-                    getRemoteNotificationOperation.setNextUrl(pageUrl);
+                    //    getRemoteNotificationOperation.setNextUrl(pageUrl);
                 }
 
                 final RemoteOperationResult result = getRemoteNotificationOperation.execute(ownCloudClient);
