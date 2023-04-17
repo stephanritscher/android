@@ -5,9 +5,9 @@ on:
     branches: [ "master", "main", "stable-*" ]
   pull_request:
     branches: [ "master", "main" ]
-  schedule:
-    - cron: '24 18 * * 3'
-
+#  schedule:
+#    - cron: '24 18 * * 3'
+#
 permissions:
   contents: read
 
